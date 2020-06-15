@@ -1,0 +1,54 @@
+#homs
+
+#90-97
+#proceso
+file1 <- "D:/TendenciasHomicidios/BDFHomicidios/defunciones_base_datos_1990_dbf/DEFUN90.dbf"
+DEFUN<-read.dbf(file1)
+DEFUN$ENT_OCURR<-as.numeric(as.character(DEFUN$ENT_OCURR))
+DEFUN$CAU<-substr(DEFUN$CAUSA_DEF,1,4)
+DEFUN$HOMI<-ifelse(DEFUN$CAU%in%c('9650', '9653', '9655', '9656', '9657', '9651', '9659', '9652', '9683', '9654', '9658',
+                                  '963X', '9680', '966X', '961X', '9682', '9689', '9684', '9688', '9600', '964X', '9601', '9681'), 1, 0)
+DEFUN$id_ent<-ifelse(DEFUN$ENT_OCURR<10,paste0('0',DEFUN$ENT_OCURR),DEFUN$ENT_OCURR)
+DEFUN$id_mun<-as.numeric(DEFUN$id_ent)*1000 + as.numeric(as.character(DEFUN$MUN_OCURR))
+HOMI<-aggregate(HOMI~id_mun, data=DEFUN[DEFUN$ENT_OCURR%in%c(1:32) & !DEFUN$MUN_OCURR%in%999 & DEFUN$ANIO_OCUR%in%90,], sum)
+HOM<-data.frame("AÑO"=1990,"id_mun"=HOMI$id_mun,"HOMICIDIOS"=NA)
+HOM[,3]<-HOMI[,2]
+HOM_MUN<-HOM
+rm(list=setdiff(ls(), c("HOM_MUN"))) 
+
+#98-
+file1 <- "D:/TendenciasHomicidios/BDFHomicidios/defunciones_base_datos_2016_dbf/DEFUN16.dbf"
+DEFUN<-read.dbf(file1)
+DEFUN$ENT_OCURR<-as.numeric(as.character(DEFUN$ENT_OCURR))
+DEFUN$CAU<-substr(DEFUN$CAUSA_DEF,1,3)
+DEFUN$HOMI<-ifelse(DEFUN$CAU%in%c('X85','X86','X87','X88','X89','X90','X91','X92','X93','X94','X95','X96','X97',
+                                  'X98','X99','Y00','Y01','Y01','Y02','Y03','Y04','Y05','Y06','Y07','Y08','Y09'), 1, 0)
+DEFUN$id_ent<-ifelse(DEFUN$ENT_OCURR<10,paste0('0',DEFUN$ENT_OCURR),DEFUN$ENT_OCURR)
+DEFUN$id_mun<-as.numeric(DEFUN$id_ent)*1000 + as.numeric(as.character(DEFUN$MUN_OCURR))
+HOMI<-aggregate(HOMI~id_mun, data=DEFUN[DEFUN$ENT_OCURR%in%c(1:32) & !DEFUN$MUN_OCURR%in%999 & DEFUN$ANIO_OCUR%in%2016,], sum)
+HOM<-data.frame("AÑO"=2016,"id_mun"=HOMI$id_mun,"HOMICIDIOS"=NA)
+HOM[,3]<-HOMI[,2]
+HOM_MUN<-HOM
+rm(list=setdiff(ls(), c("HOM_MUN"))) 
+
+#J_t_s
+library("classInt", lib.loc="~/R/R-3.5.1/library")
+
+dat1 <- PresEBRates_THMun90_17[,1:2]
+dat2 <- PresEBRates_THMun90_17[,c(1,3)]
+dat3 <- PresEBRates_THMun90_17[,c(1,4)]
+dat4 <- PresEBRates_THMun90_17[,c(1,5)]
+dat5 <- PresEBRates_THMun90_17[,c(1,6)]
+
+names(dat1)[2] <- 'Tasa'
+names(dat2)[2] <- 'Tasa'
+names(dat3)[2] <- 'Tasa'
+names(dat4)[2] <- 'Tasa'
+names(dat5)[2] <- 'Tasa'
+
+dat <- rbind(dat1,dat2)
+dat <- rbind(dat,dat3)
+dat <- rbind(dat,dat4)
+dat <- rbind(dat,dat5)
+
+classIntervals(dat$Tasa, style = 'jenks', n=5) 
